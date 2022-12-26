@@ -1,8 +1,17 @@
-#pragma once
+﻿#pragma once
 
 #include <QtWidgets/QMainWindow>
-#include<QPushButton>
+#include <qdebug>
+#include <QString>
+#include <QFileDialog>
+#include <windows.h>
 #include "ui_remosen.h"
+#include "gdal_priv.h"
+#include <armadillo>
+
+#include <QMessageBox>
+
+using namespace arma;
 
 class remosen : public QMainWindow
 {
@@ -12,11 +21,17 @@ public:
     remosen(QWidget *parent = nullptr);
     ~remosen();
 
+public slots:
+    void on_inPushButton_clicked();
+    void on_outPushButton_clicked();
+    void on_proPushButton_clicked();
+
 private:
     Ui::remosenClass ui;
-    QPushButton button_for_test;
-    int flag = 0;
 
-public:
-    void change_text();
+    // 输入输出目录
+    QString inFilePath;
+    QString outFilePath;
+
+
 };
