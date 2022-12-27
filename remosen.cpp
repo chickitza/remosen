@@ -27,6 +27,8 @@ void remosen::on_outPushButton_clicked()
 
 void remosen::on_proPushButton_clicked()
 {
+    this->inFilePath = ui.inLineEdit->text();
+    this->outFilePath = ui.outLineEdit->text();
     //for (int i = 1; i < 101; i++)
     //{
     //    Sleep(1000);
@@ -82,7 +84,7 @@ void remosen::on_proPushButton_clicked()
     //    GDT_Float64, bandNum, panBandMap, 0, 0, 0);
     if (poDataset->RasterIO(GF_Read, 0, 0, colWidthX, rowHeightY, \
         pInputData, colWidthX, rowHeightY, \
-        GDT_UInt16, bandNum, panBandMap, 0, 0, 0) != CE_None)
+        g_type, bandNum, panBandMap, 0, 0, 0) != CE_None)
         return;
     // 
     // 关闭数据集
@@ -109,7 +111,7 @@ void remosen::on_proPushButton_clicked()
     // **************2-图像处理************************//
     // 对多维矩阵进行操作，将第一个波段所有像素置为0
     fcube resFcube = myFcube;
-    resFcube.slice(0).zeros();
+    //resFcube.slice(0).zeros();
 
     // 获取多维矩阵的数据裸指针
     float* pResData = resFcube.memptr();
@@ -137,10 +139,10 @@ void remosen::on_proPushButton_clicked()
     GDALDataset* poDstDS;
     char** papszOptions = NULL;
     poDstDS = poDriver->Create(this->outFilePath.toStdString().c_str(), \
-        colWidthX, rowHeightY, bandNum, GDT_Float32, papszOptions);
+        colWidthX, rowHeightY, bandNum, g_type, papszOptions);
     // 写出数据
     if (poDstDS->RasterIO(GF_Write, 0, 0, colWidthX, rowHeightY, pOutputData, \
-        colWidthX, rowHeightY, GDT_Float32, bandNum, \
+        colWidthX, rowHeightY, g_type, bandNum, \
         panBandMap, 0, 0, 0) != CE_None) {
         QMessageBox::warning(this, "Warning", "Write raster failed.");
         return;
