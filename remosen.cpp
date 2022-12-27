@@ -51,9 +51,12 @@ void remosen::on_proPushButton_clicked()
     GDALDataset* poDataset;
     GDALAllRegister();
     CPLSetConfigOption("GDAL_FILENAME_IS_UTF8", "NO");    // 设置GDAL支持中文路径
-    CPLSetConfigOption("SHAPE_ENCODING", "");
-    qDebug() << this->inFilePath.toStdString().c_str();
-    poDataset = (GDALDataset*)GDALOpen(this->inFilePath.toStdString().c_str(), GA_ReadOnly);
+    //CPLSetConfigOption("SHAPE_ENCODING", "");
+    const char* infile;
+    QByteArray ba = this->inFilePath.toLocal8Bit();	// must
+    infile = ba.data();
+    qDebug() << infile;
+    poDataset = (GDALDataset*)GDALOpen(infile, GA_ReadOnly);
     if (poDataset == NULL) {
         QMessageBox::warning(this, "Warning", "Invaild input file name.");
         return;
@@ -63,15 +66,25 @@ void remosen::on_proPushButton_clicked()
     const int colWidthX = poDataset->GetRasterXSize();
     const int bandNum = poDataset->GetRasterCount();
     long bandSize = rowHeightY * colWidthX;
+
+    GDALRasterBand* poBand1 = poDataset->GetRasterBand(1);
+    GDALDataType g_type = GDALDataType(poBand1->GetRasterDataType());
+    qDebug() << "g_type = " << g_type;
+
+
     // 读取影像像素数据到数组
     float* pInputData = new float[rowHeightY * colWidthX * bandNum];
     int* panBandMap = new int[bandNum];
     for (int i = 0; i < bandNum; ++i)
         panBandMap[i] = i + 1;
+    //poDataset->RasterIO(GF_Read, 0, 0, colWidthX, rowHeightY, \
+    //    pInputData, colWidthX, rowHeightY, \
+    //    GDT_Float64, bandNum, panBandMap, 0, 0, 0);
     if (poDataset->RasterIO(GF_Read, 0, 0, colWidthX, rowHeightY, \
         pInputData, colWidthX, rowHeightY, \
-        GDT_Float64, bandNum, panBandMap, 0, 0, 0) != CE_None)
+        GDT_UInt16, bandNum, panBandMap, 0, 0, 0) != CE_None)
         return;
+    // 
     // 关闭数据集
     GDALClose((GDALDatasetH)poDataset);
 
